@@ -16,13 +16,14 @@ cl <- makeCluster(detectCores())
 x <- rep("Hello World!", detectCores())
 
 # Cluster version of lapply; applies function print to vector x.
-parLapply(cl, x, print)
+y <- data.frame(parLapply(cl, x, print))
 
-# Create a vector x of values 1 through the number of cores available.
-x <- c(1:detectCores())
+# Create data.frame. 
+z <- data.frame(Core = rep(1:detectCores()), 
+                Message = t(y))
 
-# Print values of x from each core. 
-parLapply(cl, x, print)
+# Write a .csv file. 
+write.csv(z, "parCheck1.csv")
 
 # End cluster. 
 stopCluster(cl)
