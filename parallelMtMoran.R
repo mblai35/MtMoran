@@ -8,6 +8,8 @@
 
 #------------------------------------------------------------------------------
 
+library(parallel)
+
 # Make a cluster by detecting cores. 
 cl <- makeCluster(detectCores())
 
