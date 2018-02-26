@@ -1,4 +1,4 @@
-# StructureLearningLooping.R
+# StructureLearningConstraintLooping1.R
 # R version 3.4.3 (2017-11-30)
 # January 26, 2018. Mallory B. Lai.
 # Reviewed by: TODO (Mallory B. Lai) : Find reviewer to proofread
@@ -51,7 +51,7 @@ bnDataSub <- list(bnData = bnData,
                   multifactorial = multifactorial)
 methodVect <- c('quantile', 'interval')
 breaksVect <- c(3, 4, 5)
-algo <- c("gs", "iamb", "fast.iamb", "inter.iamb", "mmpc", "mmhc")
+algo <- c("gs", "iamb", "fast.iamb")
 bootReps <- c(250, 500, 1000)
 thresh <- c(0.4, 0.6, 0.7, 0.8)
 
@@ -95,6 +95,6 @@ strLearn$FalseNeg <- NA
   }
   
   # Write csv for each method. 
-  write.csv(strLearn, "strLearnCompMM.csv")
+  write.csv(strLearn, "strLearnCompConstraint1.csv")
   #write.csv(strLearn, paste(names(bnDataSub)[s], ".csv", sep = ''))
 
