@@ -1,6 +1,6 @@
 # StructureLearningConstraintLooping2.R
 # R version 3.4.3 (2017-11-30)
-# January 26, 2018. Mallory B. Lai.
+# February 26, 2018. Mallory B. Lai.
 # Reviewed by: TODO (Mallory B. Lai) : Find reviewer to proofread
 # The script is meant to loop through various structure learning 
 # algorithms with varying thresholds and cutoffs to look for the most
@@ -31,7 +31,6 @@ bnData <- t(expressionData)
 bnData <- as.data.frame(bnData)
 
 # Create subsets of bnData to loop through. 
-# steadyState <- bnData[1, ]
 perturbation1 <- bnData[2:22, ]
 perturbation2 <- bnData[23:43, ]
 perturbation3 <- bnData[44:64, ]
@@ -50,51 +49,59 @@ bnDataSub <- list(bnData = bnData,
                   knockout = knockout, 
                   multifactorial = multifactorial)
 methodVect <- c('quantile', 'interval')
-breaksVect <- c(3, 4, 5)
+breaksVect <- c(2, 3, 4, 5)
 algo <- c("inter.iamb", "mmpc", "mmhc")
 bootReps <- c(250, 500, 1000)
 thresh <- c(0.4, 0.6, 0.7, 0.8)
 
 # Create dataframe for all combinations of the desired arguments within structure learning. 
-strLearn <- expand.grid(subs <- names(bnDataSub),
+strLearn <- expand.grid(exprDat = names(bnDataSub),
                         method = methodVect, 
                         breaks = breaksVect, 
                         algorithm = algo, 
-                        bootstrap = bootReps, 
-                        threshold = thresh)
+                        bootstrap = bootReps)
 
 # Add columns to store structure comparison information. 
-strLearn$TruePos <- NA
-strLearn$FalsePos <- NA
-strLearn$FalseNeg <- NA
+threshNameVector <- expand.grid(c("tp", "fp", "fn"), thresh)
+threshNameVector <- paste(threshNameVector$Var1, threshNameVector$Var2, sep = '')
+threshCols <- matrix(NA, nrow = dim(strLearn)[1], ncol = length(threshNameVector))
+colnames(threshCols) <- threshNameVector
 
+# Combine with dataframe to store threshold information.
+strLearn <- cbind(strLearn, threshCols)
+
+for (i in 1:(dim(strLearn)[1]))  {
   
-  for (i in 1:(dim(strLearn)[1]))  {
-   
-    # Discretize data using current method and breaks. 
-    bnDisc <- discretize(bnDataSub[[strLearn[i, 1]]], 
-                         method = as.character(strLearn[i, 'method']), 
-                         breaks = strLearn[i, 'breaks'])
+  # Discretize data using current method and breaks. 
+  bnDisc <- discretize(bnDataSub[[strLearn[i, 1]]], 
+                       method = as.character(strLearn[i, 'method']), 
+                       breaks = strLearn[i, 'breaks'])
+  
+  # Run structure learning.
+  arcs <- boot.strength(bnData, cluster = NULL, 
+                        R = strLearn[i, 'bootstrap'], m = nrow(data),
+                        algorithm = as.character(strLearn[i, 'algorithm']), 
+                        cpdag = TRUE, debug = FALSE)
+  
+  # Extract averages for varying thresholds. 
+  
+  for (j in 1:length(thresh)){
     
-    # Run structure learning.
-    arcs <- boot.strength(bnData, cluster = NULL, 
-                          R = strLearn[i, 'bootstrap'], m = nrow(data),
-                          algorithm = as.character(strLearn[i, 'algorithm']), 
-                          cpdag = TRUE, debug = FALSE)
-   
-     # Extract averages. 
-    avg <- averaged.network(arcs, threshold = strLearn[i, 'threshold'])
+    # Find averaged network for each threshold.
+    avg <- averaged.network(arcs, threshold = thresh[j])
     # Compare learned network to true network. 
     evaluation <- compare(skeleton(gs), skeleton(avg))
     
     # Extract true positives, false positives, and false negatives. 
-    strLearn$TruePos[i] <- evaluation$tp
-    strLearn$FalsePos[i] <- evaluation$fp
-    strLearn$FalseNeg[i] <- evaluation$fn
+    strLearn[i, paste("tp", thresh[j], sep = '')] <- evaluation$tp
+    strLearn[i, paste("fp", thresh[j], sep = '')] <- evaluation$fp
+    strLearn[i, paste("fn", thresh[j], sep = '')] <- evaluation$fn
     
   }
   
-  # Write csv for each method. 
-  write.csv(strLearn, "strLearnCompConstraint2.csv")
-  #write.csv(strLearn, paste(names(bnDataSub)[s], ".csv", sep = ''))
+  print(i)
+  
+}
 
+# Write csv for each method. 
+write.csv(strLearn, "strLearnCompConstraint2.csv")
