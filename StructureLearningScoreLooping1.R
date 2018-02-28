@@ -1,4 +1,4 @@
-# StructureLearningConstraintLooping2.R
+# StructureLearningScoreLooping1.R
 # R version 3.4.3 (2017-11-30)
 # February 26, 2018. Mallory B. Lai.
 # Reviewed by: TODO (Mallory B. Lai) : Find reviewer to proofread
@@ -50,7 +50,7 @@ bnDataSub <- list(bnData = bnData,
                   multifactorial = multifactorial)
 methodVect <- c('quantile', 'interval')
 breaksVect <- c(2, 3, 4, 5)
-algo <- c("inter.iamb", "mmpc", "mmhc")
+algo <- c("hc", "tabu")
 bootReps <- c(250, 500, 1000)
 thresh <- c(0.4, 0.6, 0.7, 0.8)
 
