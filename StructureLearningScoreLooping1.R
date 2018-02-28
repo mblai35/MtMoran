@@ -104,4 +104,4 @@ for (i in 1:(dim(strLearn)[1]))  {
 }
 
 # Write csv for each method. 
-write.csv(strLearn, "strLearnCompConstraint2.csv")
+write.csv(strLearn, "strLearnCompScore.csv")
