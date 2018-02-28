@@ -79,7 +79,7 @@ strLearn <- cbind(strLearn, threshCols)
                          breaks = strLearn[i, 'breaks'])
     
     # Run structure learning.
-    arcs <- boot.strength(bnData, cluster = NULL, 
+    arcs <- boot.strength(bnDisc, cluster = NULL, 
                           R = strLearn[i, 'bootstrap'], m = nrow(data),
                           algorithm = as.character(strLearn[i, 'algorithm']), 
                           cpdag = TRUE, debug = FALSE)
