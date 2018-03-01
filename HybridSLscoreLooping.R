@@ -37,13 +37,14 @@ breaksVect <- c(2, 3)
 bootReps <- c(250, 500)
 thresh <- c(0.4, 0.5, 0.6)
 maximize <- c("hc", "tabu")
-score <- c("loglik", "aic", "bic", "bde", "bds", "bdj", "k2", "mbde", "bdla", "loglik-g", 
-           "aic-g", "bic-g", "bge", "loglik-cg", "aic-cg", "bic-cg")
+restrict <- c("aracne", "si.hiton.pc")
+score <- c("loglik", "aic", "bic", "bde", "bds", "bdj", "k2", "mbde", "bdla")
 
 # Create dataframe for all combinations of the desired arguments within structure learning. 
 strLearn <- expand.grid(method = methodVect, 
                         breaks = breaksVect,  
                         bootstrap = bootReps,
+                        restrict = restrict,
                         max = maximize,
                         score = score)
 
@@ -70,7 +71,7 @@ for (i in 1:(dim(strLearn)[1]))  {
   arcs <- boot.strength(bnDisc, cluster = cl, 
                         R = strLearn[i, 'bootstrap'], m = nrow(data),
                         algorithm = "rsmax2", 
-                        algorithm.args = list(restrict = "aracne", maximize = as.character(strLearn[i, 'max']), 
+                        algorithm.args = list(restrict = as.character(strLearn[i, 'restrict']), maximize = as.character(strLearn[i, 'max']), 
                                               maximize.args = list(score = as.character(strLearn[i, "score"]))),
                         cpdag = TRUE, debug = FALSE)
   
