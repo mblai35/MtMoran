@@ -34,7 +34,7 @@ bnData <- as.data.frame(bnData)
 # Create vectors to loop through. 
 methodVect <- c('quantile', 'interval')
 breaksVect <- c(2, 3)
-bootReps <- c(250, 500)
+bootReps <- 250
 thresh <- c(0.4, 0.5, 0.6)
 maximize <- c("hc", "tabu")
 restrict <- c("aracne", "si.hiton.pc")
@@ -93,6 +93,8 @@ for (i in 1:(dim(strLearn)[1]))  {
   
   print(i)
   
+  if(i %% 10 == 0){write.csv(strLearn, "intermediate.csv")}
+  
 }
 
 # Stop cluster
@@ -102,46 +104,3 @@ stopCluster(cl)
 write.csv(strLearn, "hybridScore.csv")
 
 
-
-
-
-
-
-
-
-
-
-
-# Create cluster. 
-cl = makeCluster(detectCores(), "SOCK")
-
-
-# Run structure learning for various scores. 
-arcs <- boot.strength(bnDisc, #cluster = cl, 
-                      R = 200, m = nrow(data),
-                      algorithm = "rsmax2", 
-                      algorithm.args = list(restrict = "aracne", maximize = "hc", 
-                                            maximize.args = list(score = "bic")),
-                      cpdag = TRUE, debug = FALSE)
-
-
-# Find averaged network for each threshold.
-avg <- averaged.network(arcs, threshold = 0.4)
-bnlearn::compare(skeleton(gs), skeleton(avg))
-
-
-clusterEvalQ(cl, test.counter())
-stopCluster(cl)
-
-start = random.graph(nodes = names(bnDisc), num = 50)
-netlist = lapply(start, function(net) {
-  rsmax2(bnDisc, whitelist = NULL, blacklist = NULL, restrict = "aracne", maximize = "hc", restrict.args = list(), maximize.args = list(score = "bic"), debug = FALSE) })
-arcs = custom.strength(netlist, nodes = names(bnDisc),
-                       cpdag = FALSE)
-#arcs[(arcs$strength > 0.85) & (arcs$direction >= 0.5), ]
-avg2 <- averaged.network(arcs, threshold = .5)
-bnlearn::compare(skeleton(gs), skeleton(avg2))
-
-bnlearn::compare(skeleton(gs), skeleton(random.graph(nodes = names(bnDisc))))
-score <- c("loglik", "aic", "bic", "bde", "bds", "bdj", "k2", "mbde", "bdla", "loglik-g", 
-           "aic-g", "bic-g", "bge", "loglik-cg", "aic-cg", "bic-cg")
