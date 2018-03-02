@@ -58,7 +58,7 @@ colnames(threshCols) <- threshNameVector
 strLearn <- cbind(strLearn, threshCols)
 
 # Create cluster. 
-cl = makeCluster(detectCores(), "SOCK")
+#cl = makeCluster(detectCores(), "SOCK")
 
 for (i in 1:(dim(strLearn)[1]))  {
   
@@ -68,7 +68,7 @@ for (i in 1:(dim(strLearn)[1]))  {
                        breaks = strLearn[i, 'breaks'])
   
   # Run structure learning.
-  arcs <- boot.strength(bnDisc, cluster = cl, 
+  arcs <- boot.strength(bnDisc, #cluster = cl, 
                         R = strLearn[i, 'bootstrap'], m = nrow(data),
                         algorithm = "rsmax2", 
                         algorithm.args = list(restrict = as.character(strLearn[i, 'restrict']), maximize = as.character(strLearn[i, 'max']), 
@@ -98,7 +98,7 @@ for (i in 1:(dim(strLearn)[1]))  {
 }
 
 # Stop cluster
-stopCluster(cl)
+#stopCluster(cl)
 
 # Write csv for each method. 
 write.csv(strLearn, "hybridScore.csv")
